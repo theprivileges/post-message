@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Simple Browser Session Storage Example</title>
+        <style type="text/css" media="screen">
+            body {
+                font: 16px/1.5 helvetica-neue, helvetica, arial, san-serif;
+            }
+            textarea#msg {
+                padding: 5px;
+                border: 1px solid #ccc;
+                display: block;
+                width: 250px;
+                height: 100px;
+            }
+            p.post {
+                border: 1px solid #ccc;
+                background: #ececec;
+                padding: 10px;
+                margin: 10px 0;
+                width: 240px;
+            }
+            button#submit {
+                border: 1px solid #ccc;
+                background: #ececec;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                margin-top: 10px;
+                width: 260px;
+                padding: 5px 20px;
+                outline: none;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="chat"></div>
+        <textarea name="msg" id="msg" placeholder="Your Message" autofocus="true"></textarea>
+        <button id="submit" type="submit">Post</button>
+        <script type="text/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+        <script type="text/javascript" charset="utf-8" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            var chat, postMessage, messageProcess, Messages;
+            
+            chat = $("#chat");
+            // Stored messages in JSON format
+            Messages = [];
+
+            // allow for form submit using Ctrl+Enter
+            $.fn.ctrlEnter = function (btns, fn) {
+                var thiz = $(this);
+                btns = $(btns);
+
+                function performAction (e) {
+                    fn.call(thiz, e);
+                };
+                thiz.bind("keydown", function (e) {
+                    if (e.keyCode === 13 && e.ctrlKey) {
+                        performAction(e);
+                        e.preventDefault();
+                    }
+                });
+                btns.bind("click", performAction);
+            }
+
+            $("#msg").ctrlEnter("button", function () {
+                if (this.val() !== "") {
+                    $("#submit").html('Sending...');
+                    postMessage(this);
+                } else {
+                    console.error('No message');
+                    alert('Please add a message');
+                }
+            });
+
+            postMessage = function(thiz){
+                var message;
+                // replace unwanted line break
+                message = thiz.val().replace(/\n/g, "<br />");
+                // add message to screen
+                messageProcess(message);
+                // change submit button text
+                $("#submit").html('Post');
+                // reset form
+                thiz.val("");
+            }
+
+            messageProcess = function (data) {
+                // add message to chat
+                $("<p class='post'></p>").append(data).fadeIn('slow').appendTo(chat);
+                console.log('Message Posted!');
+                // save message 
+                storeMessage(data);
+            }
+
+            storeMessage = function (message) {
+                // Push this last message to the end of the other messages
+                Messages.push(JSON.stringify(message));
+                // Store the messages into the browser's session as JSON
+                sessionStorage.setItem("Messages",JSON.stringify(Messages));
+            }
+
+            $(document).ready(function(){
+                //check if we have any stored messages
+                if (sessionStorage.getItem("Messages")){
+                    store = JSON.parse(sessionStorage.getItem("Messages"));
+                    // iterate through stored comments, and build an array filled with JSON strings
+                    setTimeout(function(){
+                        $.each(store, function(key,value){
+                            Messages[key] = value;
+                            messageProcess(JSON.parse(value));
+                        });
+                    },1000);
+                }
+            });
+        </script>
+    </body>
+</html>
