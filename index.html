@@ -81,6 +81,8 @@
                 message = thiz.val().replace(/\n/g, "<br />");
                 // add message to screen
                 messageProcess(message);
+                // save message 
+                storeMessage(message);
                 // change submit button text
                 $("#submit").html('Post');
                 // reset form
@@ -91,8 +93,6 @@
                 // add message to chat
                 $("<p class='post'></p>").append(data).fadeIn('slow').appendTo(chat);
                 console.log('Message Posted!');
-                // save message 
-                storeMessage(data);
             }
 
             storeMessage = function (message) {
