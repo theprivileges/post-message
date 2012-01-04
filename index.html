@@ -42,20 +42,22 @@
         <script type="text/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
         <script type="text/javascript" charset="utf-8" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
         <script type="text/javascript" charset="utf-8">
-            var chat, postMessage, messageProcess, Messages;
-            
+            /*jshint forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, curly:true, browser:true, devel:true, jquery:true, indent:4, maxerr:50 */
+            var chat, postMessage, messageProcess, Messages, store, storeMessage;
+
             chat = $("#chat");
             // Stored messages in JSON format
             Messages = [];
 
             // allow for form submit using Ctrl+Enter
             $.fn.ctrlEnter = function (btns, fn) {
+                "use strict";
                 var thiz = $(this);
                 btns = $(btns);
 
-                function performAction (e) {
+                function performAction(e) {
                     fn.call(thiz, e);
-                };
+                }
                 thiz.bind("keydown", function (e) {
                     if (e.keyCode === 13 && e.ctrlKey) {
                         performAction(e);
@@ -63,9 +65,10 @@
                     }
                 });
                 btns.bind("click", performAction);
-            }
+            };
 
             $("#msg").ctrlEnter("button", function () {
+                "use strict";
                 if (this.val() !== "") {
                     $("#submit").html('Sending...');
                     postMessage(this);
@@ -75,7 +78,8 @@
                 }
             });
 
-            postMessage = function(thiz){
+            postMessage = function (thiz) {
+                "use strict";
                 var message;
                 // replace unwanted line break
                 message = thiz.val().replace(/\n/g, "<br />");
@@ -87,32 +91,35 @@
                 $("#submit").html('Post');
                 // reset form
                 thiz.val("");
-            }
+            };
 
             messageProcess = function (data) {
+                "use strict";
                 // add message to chat
                 $("<p class='post'></p>").append(data).fadeIn('slow').appendTo(chat);
                 console.log('Message Posted!');
-            }
+            };
 
             storeMessage = function (message) {
+                "use strict";
                 // Push this last message to the end of the other messages
                 Messages.push(JSON.stringify(message));
                 // Store the messages into the browser's session as JSON
-                sessionStorage.setItem("Messages",JSON.stringify(Messages));
-            }
+                sessionStorage.setItem("Messages", JSON.stringify(Messages));
+            };
 
-            $(document).ready(function(){
+            $(document).ready(function () {
+                "use strict";
                 //check if we have any stored messages
-                if (sessionStorage.getItem("Messages")){
+                if (sessionStorage.getItem("Messages")) {
                     store = JSON.parse(sessionStorage.getItem("Messages"));
                     // iterate through stored comments, and build an array filled with JSON strings
-                    setTimeout(function(){
-                        $.each(store, function(key,value){
+                    setTimeout(function () {
+                        $.each(store, function (key, value) {
                             Messages[key] = value;
                             messageProcess(JSON.parse(value));
                         });
-                    },1000);
+                    }, 1000);
                 }
             });
         </script>
